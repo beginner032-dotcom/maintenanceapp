@@ -1,0 +1,6 @@
+{
+  "name": "Apps Script Migration",
+  "description": "A web app migrated from Google Apps Script to React, using Firebase as the database.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

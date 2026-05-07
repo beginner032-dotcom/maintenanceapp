@@ -648,6 +648,16 @@ function LoginView({onLogin}: any) {
     const [view, setView] = useState('choice');
     const [pass, setPass] = useState('');
 
+    useEffect(() => {
+        // Expose function for Kodular Android App to call upon successful fingerprint auth
+        (window as any).onKodularFingerprintSuccess = () => {
+            onLogin('admin', 'Admin');
+        };
+        return () => {
+            delete (window as any).onKodularFingerprintSuccess;
+        };
+    }, [onLogin]);
+
     const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
         let binary = '';
         const bytes = new Uint8Array(buffer);
@@ -668,8 +678,16 @@ function LoginView({onLogin}: any) {
     };
 
     const handleFingerprintLogin = async () => {
+        // Bridge integrasi dengan WebView Kodular / Android
+        if ((window as any).AppInventor) {
+            // Memberitahu Kodular WebView bahwa tombol sidik jari ditekan
+            (window as any).AppInventor.setWebViewString("REQ_FINGERPRINT");
+            // Biarkan Kodular memproses native fingerprint
+            return;
+        }
+
         if (!window.PublicKeyCredential) {
-            alert("Browser/perangkat Anda tidak mendukung fitur sidik jari (WebAuthn).");
+            alert("Aplikasi/Browser ini belum mendukung sidik jari Web. Jika di Webview/Kodular, integrasikan Block WebViewer.WebViewString='REQ_FINGERPRINT' lalu panggil JS 'window.onKodularFingerprintSuccess()', atau buka di browser Chrome utama.");
             return;
         }
 
